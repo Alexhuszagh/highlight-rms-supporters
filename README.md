@@ -1,2 +1,14 @@
-# highlight-rms-signers
+# Highlight RMS Supporters
 A cross-platform utility to highlight RMS letter signers.
+
+# Table of Contents
+
+# Getting Started
+
+# License
+
+All code is dual licensed under the Apache 2.0 license as well as the MIT license. See the LICENCE-MIT and the LICENCE-APACHE files for the licenses. All assets are not mine, and shared from their [creator](https://www.iconfinder.com/kmgdesignid) under a [Creative Commons 3.0 Unported](https://creativecommons.org/licenses/by/3.0/) license.
+
+# Contributing
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in highlight-rms-supporters by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.

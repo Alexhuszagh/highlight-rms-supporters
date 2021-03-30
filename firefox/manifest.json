@@ -1,0 +1,26 @@
+{
+
+  "manifest_version": 2,
+  "name": "Highlight RMS Supporters",
+  "version": "0.1",
+
+  "description": "Highlights any users who signed RMS's letter.",
+
+  "icons": {
+    "24": "icons/highlight-24.png",
+    "32": "icons/highlight-32.png",
+    "48": "icons/highlight-48.png",
+    "64": "icons/highlight-64.png",
+    "128": "icons/highlight-128.png",
+    "256": "icons/highlight-256.png",
+    "512": "icons/highlight-512.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.github.com/*"],
+      "js": ["highlight.js"]
+    }
+  ]
+
+}
