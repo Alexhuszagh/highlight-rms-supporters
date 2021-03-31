@@ -7,6 +7,7 @@ A cross-platform utility to highlight RMS support letter signers.
 - [Design](#design)
 - [Developing](#developing)
 - [Installation](#installation)
+- [Settings](#settings)
 - [Bad Faith Criticism](#bad-faith-criticism)
 - [License](#license)
 - [Contributing](#contributing)
@@ -64,6 +65,10 @@ Go to settings (`chrome://settings/` in the URL bar), click "Extensions", and ac
 Go to `about:debugging` in the URL bar, click "This Firefox" on the left tab, go under "Temporary Extensions", and click "Load Temporary Add-on…". Then navigate to `dist/firefox`, and load `manifest.json`.
 
 This extension will be removed every time you reset Firefox or your computer, and therefore this is *not* a recommended solution.
+
+# Settings
+
+By default, this extension/userscript updates the list of signatories daily. This may be changed under the settings menu for the extension/userscript.
 
 # Bad Faith Criticism
 
