@@ -68,12 +68,15 @@ This extension will be removed every time you reset Firefox or your computer, an
 # Bad Faith Criticism
 
 > But what about GDPR/User Privacy?
+
 This script stores no user data on any server, only locally, and is fetched from a public list of signatories. You are free to remove your name from the RMS support letter at any time.
 
 > Won't this condone harassment?
+
 First, nothing compares to the serial harassment Richard Stallman has perpetuated over decades. But no, all it does it provide a stylesheet highlighting names on developer websites, and does not provide external contact information.
 
 > What about free speech?
+
 Free speech does not protect you from criticisms of said speech. You are not entitled to a platform.
 
 ![Free Speech](https://imgs.xkcd.com/comics/free_speech.png)
