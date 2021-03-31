@@ -139,8 +139,6 @@ const generateCss = usernames => {
  *  Entry point.
  */
 const main = async () => {
-    document.body.style.border = "5px solid red";
-
     // Get the signers and update the signer list if required.
     let currentDate = new Date();
     let isValid = await isStorageValid(currentDate);
