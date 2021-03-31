@@ -66,13 +66,6 @@ const getSupportersHtml = () =>
     fetch(URL)
         .then(response => response.text())
 
-// DATETIME
-
-/**
- *
- */
-//const
-
 // STORAGE
 
 /**
@@ -94,6 +87,18 @@ const getUpdated = async () => {
         return new Date(value.updated);
     }
     return undefined;
+}
+
+/**
+ *  Get the refresh time.
+ */
+const getRefresh = async () => {
+    let value = await browser.storage.local.get('refresh');
+    if (value.refresh !== undefined) {
+        return parseInt(value.refresh);
+    }
+    // Default to 1 day if not set.
+    return 86400000;
 }
 
 /**
@@ -120,8 +125,8 @@ const isStorageValid = async currentDate => {
 
     // Check if the period is greater than our update limit.
     let time = currentDate - previousDate;
-    const day = 86400000;       // Remove this with options later.
-    return time < day;
+    let refreshTime = await getRefresh();
+    return time < refreshTime;
 }
 
 // CSS
@@ -130,7 +135,7 @@ const isStorageValid = async currentDate => {
  *  Generate the CSS style from names.
  */
 const generateCss = usernames => {
-    const highlight = '{ background-color: IndianRed; }';
+    const highlight = '{ background-color: Orange; }';
     const selector = usernames
         .map(item => `a[href$="/${item}" I]`)
         .join(', ');
