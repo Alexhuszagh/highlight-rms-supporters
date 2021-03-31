@@ -9,7 +9,15 @@ Pre-built extensions are provided under the [releases](/releases) page.
 
 In order to create a simple, cross-platform browser extension with code re-use, we have a single `src` folder and `icons` directory, which are then distributed with the platform-specific manifests to create the package. All the tools to generate these dist packages can be found under `tools`.
 
-# Installation.
+# Installation
+
+Chrome and Firefox do not allow installing packages outside the app stores for security reasons. However, the preferred way is installing a Tampermonkey/Greasymonkey script.
+
+*Chrome*
+
+*Firefox*
+
+*Tampermonkey*
 
 # License
 
