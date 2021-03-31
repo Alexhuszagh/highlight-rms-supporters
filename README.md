@@ -13,6 +13,8 @@ In order to create a simple, cross-platform browser extension with code re-use, 
 
 All code is dual licensed under the Apache 2.0 license as well as the MIT license. See the LICENCE-MIT and the LICENCE-APACHE files for the licenses. All icons are shared from their [creator](https://www.iconfinder.com/kmgdesignid) under a [Creative Commons 3.0 Unported](https://creativecommons.org/licenses/by/3.0/) license.
 
+This project will not use a GPL license. Thanks for asking.
+
 # Contributing
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in highlight-rms-supporters by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
