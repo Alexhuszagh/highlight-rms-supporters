@@ -2,9 +2,8 @@
 
 set -e
 
-DESTINATION=dist/firefox
+DESTINATION=dist/userscript
 mkdir -p                            $DESTINATION
 rm -rf                              $DESTINATION/*
 ./tools/copy-shared.sh              $DESTINATION
-./tools/copy-extension.sh           $DESTINATION
-cp platform/firefox/manifest.json   $DESTINATION/
+./tools/copy-userscript.sh          $DESTINATION

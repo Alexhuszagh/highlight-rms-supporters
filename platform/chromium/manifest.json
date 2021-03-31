@@ -16,7 +16,8 @@
   "name": "Highlight RMS Supporters",
   "version": "0.1",
 
-  "description": "Highlights any users who signed RMS's letter.",
+  "description": "Highlights any users who signed RMS's support letter.",
+  "author": "Alex Huszagh",
 
   "icons": {
     "24": "icons/icon_24.png",
@@ -45,10 +46,7 @@
   ],
 
   "permissions": [
-    "https://github.com/*",
-    "https://*.github.io/*",
-    "https://gitlab.com/*",
-    "https://*.gitlab.io/*",
+    "https://rms-support-letter.github.io/",
     "storage"
   ],
 
