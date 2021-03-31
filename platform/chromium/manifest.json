@@ -52,12 +52,6 @@
 
   "options_ui": {
     "page": "options.html",
-    "browser_style": true
-  },
-
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{99f76096-e2d6-461a-8e99-7655a5ed4c8c}"
-    }
+    "chrome_style": true
   }
 }
