@@ -52,15 +52,15 @@ tools/make-firefox.sh
 tools/make-chromium.sh
 ```
 
-*Tampermonkey/GreaseMonkey*
+**Tampermonkey/GreaseMonkey**
 
 Click on the Tampermonkey or Greasemonkey extension icon, click "Create a new script..." or "New user script..." and copy and paste the contents of `dist/userscript/main.js` into the script, and save the contents.
 
-*Chrome*
+**Chrome**
 
 Go to settings (`chrome://settings/` in the URL bar), click "Extensions", and activate "Developer Mode" in the top-right corner. Next, click "Load Unpacked" in the top-left corner. Then, navigate to `dist/chromium` and load the folder.
 
-*Firefox*
+**Firefox**
 
 Go to `about:debugging` in the URL bar, click "This Firefox" on the left tab, go under "Temporary Extensions", and click "Load Temporary Add-on…". Then navigate to `dist/firefox`, and load `manifest.json`.
 
