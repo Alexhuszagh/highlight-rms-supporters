@@ -2,7 +2,7 @@
   "browser_action": {
     "browser_style": false,
     "default_icon": {
-      "16": "icons/icon_16.png",
+      "24": "icons/icon_24.png",
       "32": "icons/icon_32.png"
     },
     "default_title": "Highlight RMS Supporters"
@@ -17,7 +17,6 @@
   "version": "0.1",
 
   "description": "Highlights any users who signed RMS's letter.",
-  "default_locale": "en",
 
   "icons": {
     "24": "icons/icon_24.png",
@@ -37,7 +36,10 @@
         "https://gitlab.com/*",
         "https://*.gitlab.io/*"
       ],
-      "js": ["main.js"],
+      "js": [
+        "browser-polyfill.js",
+        "main.js"
+      ],
       "run_at": "document_idle"
     }
   ],
