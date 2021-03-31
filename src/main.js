@@ -69,12 +69,13 @@ const getSupportersHtml = () =>
 // STORAGE
 
 /**
- *  Set the list of signers and updated timestamp.
+ *  Set the list of stylesheets and updated timestamp.
  */
-const setSigners = async (date, signers) => {
+const setStyleSheets = async (date, github, gitlab) => {
     browser.storage.local.set({
         updated: date.toUTCString(),
-        signers
+        github,
+        gitlab
     });
 }
 
@@ -102,14 +103,14 @@ const getRefresh = async () => {
 }
 
 /**
- *  Get the RMS supporters signers.
+ *  Get the stylesheets to highlight RMS supporter signers.
  */
-const getSigners = async () => {
-    let value = await browser.storage.local.get('signers');
-    if (value.signers !== undefined) {
-        return value.signers;
-    }
-    return undefined;
+const getStyleSheets = async () => {
+    let value = await browser.storage.local.get(['github', 'gitlab']);
+    return {
+        github: value.github,
+        gitlab: value.gitlab
+    };
 }
 
 /**
@@ -134,7 +135,7 @@ const isStorageValid = async currentDate => {
 /**
  *  Generate the CSS style from names.
  */
-const generateCss = usernames => {
+const generateStyleSheet = usernames => {
     const highlight = '{ background-color: Orange; }';
     const selector = usernames
         .map(item => `a[href$="/${item}" I]`)
@@ -152,25 +153,31 @@ const main = async () => {
     let currentDate = new Date();
     let isValid = await isStorageValid(currentDate);
     if (isValid) {
-        var signers = await getSigners();
+        var stylesheets = await getStyleSheets();
     } else {
         // Fetch and parse our signers list.
-        var signers = await getSupportersHtml()
+        let signers = await getSupportersHtml()
             .then(text => toHtml(text))
             .then(html => extractSignerList(html));
 
-        await setSigners(currentDate, signers);
+        // Create stylesheets from the signer lists.
+        let github = generateStyleSheet(signers.github);
+        let gitlab = generateStyleSheet(signers.gitlab);
+        var stylesheets = {
+            github,
+            gitlab
+        };
+
+        await setStyleSheets(currentDate, github, gitlab);
     }
 
     // Apply the CSS styles for the current page.
     const style = document.createElement('style');
     const domain = window.location.hostname;
     if (GITHUB_DOMAIN_RE.test(domain)) {
-        // Add github styles.
-        style.innerHTML = generateCss(signers.github);
+        style.innerHTML = stylesheets.github;
     } else if (GITLAB_DOMAIN_RE.test(domain)) {
-        // Add gitlab styles.
-        style.innerHTML = generateCss(signers.gitlab);
+        style.innerHTML = stylesheets.gitlab;
     }
     document.head.appendChild(style);
 }
