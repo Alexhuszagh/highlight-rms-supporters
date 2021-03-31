@@ -5,9 +5,13 @@ A cross-platform utility to highlight RMS letter signers.
 
 # Getting Started
 
+# Developing
+
+In order to create a simple, cross-platform browser extension with code re-use, we have a single `src` folder and `icons` directory, which are then distributed with the platform-specific manifests to create the package. All the tools to generate these dist packages can be found under `tools`.
+
 # License
 
-All code is dual licensed under the Apache 2.0 license as well as the MIT license. See the LICENCE-MIT and the LICENCE-APACHE files for the licenses. All assets are not mine, and shared from their [creator](https://www.iconfinder.com/kmgdesignid) under a [Creative Commons 3.0 Unported](https://creativecommons.org/licenses/by/3.0/) license.
+All code is dual licensed under the Apache 2.0 license as well as the MIT license. See the LICENCE-MIT and the LICENCE-APACHE files for the licenses. All icons are shared from their [creator](https://www.iconfinder.com/kmgdesignid) under a [Creative Commons 3.0 Unported](https://creativecommons.org/licenses/by/3.0/) license.
 
 # Contributing
 
