@@ -1,9 +1,9 @@
 # Highlight RMS Supporters
-A cross-platform utility to highlight RMS letter signers.
+A cross-platform utility to highlight RMS support letter signers.
 
-# Table of Contents
+# Releases
 
-# Getting Started
+Pre-built extensions are provided under the [releases](/releases) page.
 
 # Developing
 
