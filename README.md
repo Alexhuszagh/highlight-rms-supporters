@@ -86,6 +86,8 @@ Free speech does not protect you from criticisms of said speech. You are not ent
 
 ![Free Speech](https://imgs.xkcd.com/comics/free_speech.png)
 
+*From [xkcd](https://xkcd.com/1357/), shared under [CC BY-NC 2.5](https://creativecommons.org/licenses/by-nc/2.5/).*
+
 # License
 
 All code is dual licensed under the Apache 2.0 license as well as the MIT license. See the LICENCE-MIT and the LICENCE-APACHE files for the licenses. All icons are shared from their [creator](https://www.iconfinder.com/kmgdesignid) under a [Creative Commons 3.0 Unported](https://creativecommons.org/licenses/by/3.0/) license.
