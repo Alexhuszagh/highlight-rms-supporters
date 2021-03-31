@@ -5,10 +5,12 @@
 // PARSE
 
 // Regex matching github usernames. Limit to alnum to avoid any injection.
-const GITHUB_USER_RE = /^https?\:\/\/github\.com\/([A-Za-z0-9]*)$/
+// Valid usernames are alphanumeric with internal, non-consecutive hyphens.
+const GITHUB_USER_RE = /^https?\:\/\/github\.com\/([A-Za-z0-9-]*)\/?$/
 
 // Regex matching gitlab usernames. Limit to alnum to avoid any injection.
-const GITLAB_USER_RE = /^https?\:\/\/gitlab\.com\/([A-Za-z0-9]*)$/
+// Valid usernames are alphanumeric with internal, non-consecutive hyphens.
+const GITLAB_USER_RE = /^https?\:\/\/gitlab\.com\/([A-Za-z0-9-]*)\/?$/
 
 // Regex matching github domain names.
 const GITHUB_DOMAIN_RE = /^(?:(?:github\.com)|(?:.*\.github\.io))$/
@@ -129,7 +131,9 @@ const isStorageValid = async currentDate => {
  */
 const generateCss = usernames => {
     const highlight = '{ background-color: IndianRed; }';
-    const selector = usernames.map(item => `a[href$="${item}"]`).join(', ');
+    const selector = usernames
+        .map(item => `a[href$="/${item}" I]`)
+        .join(', ');
     return `${selector}\n${highlight}`;
 }
 
