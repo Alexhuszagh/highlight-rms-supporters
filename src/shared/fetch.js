@@ -3,7 +3,6 @@
  */
 
 import { toHtml, extractSignerList } from './parse.js';
-import style from './style.js';
 
 const URL = 'https://rms-support-letter.github.io/';
 
@@ -15,7 +14,7 @@ const getSupportersHtml = () =>
         .then(response => response.text());
 
 /**
- * Fetch signers and generate the stylesheets.
+ * Fetch signers and generate the username mappings.
  */
 export default async () => {
     let signers = await getSupportersHtml()
@@ -23,8 +22,8 @@ export default async () => {
         .then(html => extractSignerList(html));
 
     // Create stylesheets from the signer lists.
-    let github = style.generate(signers.github);
-    let gitlab = style.generate(signers.gitlab);
+    let github = new Set(signers.github);
+    let gitlab = new Set(signers.gitlab);
 
     return {
         github,

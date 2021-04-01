@@ -2,9 +2,9 @@
  *  Fetch signer list from the RMS support letter.
  */
 
-import fetchAndGenerateStyleSheets from './fetch.js';
+import fetchUsernames from './fetch.js';
 import requiresRefresh from './refresh.js';
-import style from './style.js';
+import highlight from './highlight.js';
 
 /**
  * Shared entry point based on a generic store.
@@ -14,15 +14,15 @@ export default async store => {
     let previousDate = await store.getUpdated();
     let refreshTime = await store.getRefresh();
     let refresh = requiresRefresh(currentDate, previousDate, refreshTime);
-    var stylesheets;
+    var usernames;
     if (refresh) {
-        stylesheets = await fetchAndGenerateStyleSheets();
-        let { github, gitlab } = stylesheets;
-        await store.setStyleSheets(currentDate, github, gitlab);
+        usernames = await fetchUsernames();
+        let { github, gitlab } = usernames;
+        await store.setUsernames(currentDate, github, gitlab);
     } else {
-        stylesheets = await store.getStyleSheets();
+        usernames = await store.getUsernames();
     }
 
-    // Apply the CSS styles for the current page.
-    style.apply(stylesheets);
+    // Apply the CSS styles for relevant links.
+    highlight(usernames);
 }

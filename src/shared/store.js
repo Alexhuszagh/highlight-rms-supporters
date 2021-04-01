@@ -5,6 +5,18 @@
 import { REFRESH } from './settings.js';
 
 /**
+ *  Deserialize usernames from JSON.
+ */
+const deserializeUsernames = json =>
+    new Set(JSON.parse(json));
+
+/**
+ *  Serialize usernames to JSON.
+ */
+const serializeUsernames = usernames =>
+    JSON.stringify(Array.from(usernames));
+
+/**
  * Create the store from an abstract storage.
  */
 export default storage => {
@@ -32,31 +44,31 @@ export default storage => {
     }
 
     /**
-     * Get the stylesheets to highlight RMS supporter signers.
+     * Get the usernames to highlight RMS supporter signers.
      */
-    async function getStyleSheets() {
+    async function getUsernames() {
         let value = await storage.get(['github', 'gitlab']);
         return {
-            github: value.github,
-            gitlab: value.gitlab
+            github: deserializeUsernames(value.github),
+            gitlab: deserializeUsernames(value.gitlab)
         };
     }
 
     /**
-     * Set the list of stylesheets and updated timestamp.
+     * Set the list of usernames and updated timestamp.
      */
-    async function setStyleSheets(date, github, gitlab) {
+    async function setUsernames(date, github, gitlab) {
         storage.set({
             updated: date.toUTCString(),
-            github,
-            gitlab
+            github: serializeUsernames(github),
+            gitlab: serializeUsernames(gitlab)
         });
     }
 
     return {
         getUpdated,
         getRefresh,
-        getStyleSheets,
-        setStyleSheets
+        getUsernames,
+        setUsernames
     };
 }

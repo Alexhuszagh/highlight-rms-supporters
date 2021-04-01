@@ -14,11 +14,11 @@ A cross-platform utility to highlight RMS support letter signers.
 
 # Prebuilt Extensions/Userscripts
 
-Pre-built extensions and userscripts are provided under the [dist](/dist) directories. 
+Pre-built extensions and userscripts are provided under the [dist](/dist) directories.
 
 # Design
 
-This browser extension/userscript fetches and parses a list of signers to the RMS support letter, and then uses local storage to store stylesheets to highlight their names on Github or Gitlab. 
+This browser extension/userscript fetches and parses a list of signers to the RMS support letter, and then uses local storage to store stylesheets to highlight their names on Github or Gitlab.
 
 # Developing
 
