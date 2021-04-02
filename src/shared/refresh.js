@@ -6,7 +6,7 @@
  * Determine if the stylesheets require a refresh.
  */
 export default (currentDate, previousDate, refreshTime) => {
-    // No previous `updated` time, no stylesheets set.
+    // No previous `updated` time, no previous usernames set set.
     if (typeof previousDate === 'undefined') {
         return true;
     }

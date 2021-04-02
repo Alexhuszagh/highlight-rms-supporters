@@ -18,7 +18,7 @@ Pre-built extensions and userscripts are provided under the [dist](/dist) direct
 
 # Design
 
-This browser extension/userscript fetches and parses a list of signers to the RMS support letter, and then uses local storage to store stylesheets to highlight their names on Github or Gitlab.
+This browser extension/userscript fetches and parses a list of signers to the RMS support letter, and then uses local storage to store signers to highlight their names on Github or Gitlab.
 
 # Developing
 
@@ -78,7 +78,7 @@ This script stores no user data on any server, only locally, and is fetched from
 
 > Won't this condone harassment?
 
-First, nothing compares to the serial harassment Richard Stallman has perpetuated over decades. But no, all it does it provide a stylesheet highlighting names on developer websites, and does not provide external contact information.
+First, nothing compares to the serial harassment Richard Stallman has committed over decades and the toxic environment he has cultivated. But this script doesn't condone harassment: all it does it is highlight names on developer websites, and does not provide external contact information.
 
 > What about free speech?
 

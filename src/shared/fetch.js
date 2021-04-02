@@ -19,7 +19,7 @@ export default async url => {
         .then(text => toHtml(text))
         .then(html => extractSignerList(html));
 
-    // Create stylesheets from the signer lists.
+    // Create a set of usernames from the signer lists.
     let github = new Set(signers.github.map(x => x.toLowerCase()));
     let gitlab = new Set(signers.gitlab.map(x => x.toLowerCase()));
 
