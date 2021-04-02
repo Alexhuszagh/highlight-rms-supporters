@@ -139,6 +139,27 @@
     };
 
     /**
+     * Parse github issues, which have the format:
+     *    /repo/issues?q=is:issue+is:open+author:user
+     *
+     *    This might overwrite values for is, but we just want
+     *    the author, which is always a single value.
+     */
+    const parseIssues = str => {
+        const obj = {};
+        if (str.length === 0) {
+            return obj;
+        }
+
+        const queries = str.split(' ');
+        for (const query of queries) {
+            let [key, value] = query.split(':');
+            obj[key] = value;
+        }
+        return obj;
+    };
+
+    /**
      * Detect if a URL corresponds to a give author.
      *
      * In order to avoid spam, we only highlight if:
@@ -158,6 +179,12 @@
         } else if (url.pathname.endsWith('commits')) {
             // Has commits, check the author field.
             username = url.searchParams.get('author');
+        } else if (url.pathname.endsWith('issues')) {
+            // Have a Github issue.
+            const issues = parseIssues(url.searchParams.get('q') || '');
+            if (typeof issues['author'] !== 'undefined') {
+                username = issues['author'];
+            }
         }
 
         return username;
