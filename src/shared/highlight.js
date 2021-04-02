@@ -67,13 +67,18 @@ const highlightLinks = (usernames, domain, color) => {
  * Highlight user ID on the Github profile.
  */
 const highlightGithubProfile = (usernames, color) => {
-    let elements = document.getElementsByClassName('vcard-username');
-    if (elements.length === 1) {
-        // On a Github profile, check the username(s).
-        const element = elements[0];
-        if (usernames.has(element.innerText)) {
-            stylize(element, color);
+    try {
+        let elements = document.getElementsByClassName('vcard-username');
+        if (elements.length === 1) {
+            // On a Github profile, check the username(s).
+            const element = elements[0];
+            if (usernames.has(element.innerText)) {
+                stylize(element, color);
+            }
         }
+    } catch(error) {
+        // The UI changed: log it to the console.
+        console.error(error);
     }
 }
 
@@ -81,14 +86,19 @@ const highlightGithubProfile = (usernames, color) => {
  * Highlight user ID on the Gitlab profile.
  */
 const highlightGitlabProfile = (usernames, color) => {
-    let elements = document.getElementsByClassName('user-info');
-    if (elements.length === 1) {
-        // On a Gitlab profile, check the username(s).
-        const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
-        let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
-        if (match !== null && usernames.has(match[1])) {
-            stylize(element, color);
+    try {
+        let elements = document.getElementsByClassName('user-info');
+        if (elements.length === 1) {
+            // On a Gitlab profile, check the username(s).
+            const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
+            let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
+            if (match !== null && usernames.has(match[1])) {
+                stylize(element, color);
+            }
         }
+    } catch(error) {
+        // The UI changed: log it to the console.
+        console.error(error);
     }
 }
 

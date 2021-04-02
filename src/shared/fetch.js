@@ -4,20 +4,18 @@
 
 import { toHtml, extractSignerList } from './parse.js';
 
-const URL = 'https://rms-support-letter.github.io/';
-
 /**
  * Fetch HTML from the supporters URL.
  */
-const getSupportersHtml = () =>
-    fetch(URL)
+const getSupportersHtml = url =>
+    fetch(url)
         .then(response => response.text());
 
 /**
  * Fetch signers and generate the username mappings.
  */
-export default async () => {
-    let signers = await getSupportersHtml()
+export default async url => {
+    let signers = await getSupportersHtml(url)
         .then(text => toHtml(text))
         .then(html => extractSignerList(html));
 

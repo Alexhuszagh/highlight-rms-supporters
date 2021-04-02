@@ -124,7 +124,14 @@
                 type: 'select',
                 default: REFRESH.values[REFRESH['default']],
                 options: Object.keys(REFRESH.labels)
-            }
+            },
+            // TODO(ahuszagh) Need to add a setting here...
+    //        colorLabel: {
+    //            label: 'Refresh Time:',
+    //            type: 'select',
+    //            default: REFRESH.values[REFRESH['default']],
+    //            options: Object.keys(REFRESH.labels)
+    //        }
         },
         events: {
             save: () => {
@@ -192,20 +199,18 @@
      *  Fetch signer list from the RMS support letter.
      */
 
-    const URL$1 = 'https://rms-support-letter.github.io/';
-
     /**
      * Fetch HTML from the supporters URL.
      */
-    const getSupportersHtml = () =>
-        fetch(URL$1)
+    const getSupportersHtml = url =>
+        fetch(url)
             .then(response => response.text());
 
     /**
      * Fetch signers and generate the username mappings.
      */
-    var fetchUsernames = async () => {
-        let signers = await getSupportersHtml()
+    var fetchUsernames = async url => {
+        let signers = await getSupportersHtml(url)
             .then(text => toHtml(text))
             .then(html => extractSignerList(html));
 
@@ -306,13 +311,18 @@
      * Highlight user ID on the Github profile.
      */
     const highlightGithubProfile = (usernames, color) => {
-        let elements = document.getElementsByClassName('vcard-username');
-        if (elements.length === 1) {
-            // On a Github profile, check the username(s).
-            const element = elements[0];
-            if (usernames.has(element.innerText)) {
-                stylize(element, color);
+        try {
+            let elements = document.getElementsByClassName('vcard-username');
+            if (elements.length === 1) {
+                // On a Github profile, check the username(s).
+                const element = elements[0];
+                if (usernames.has(element.innerText)) {
+                    stylize(element, color);
+                }
             }
+        } catch(error) {
+            // The UI changed: log it to the console.
+            console.error(error);
         }
     };
 
@@ -320,14 +330,19 @@
      * Highlight user ID on the Gitlab profile.
      */
     const highlightGitlabProfile = (usernames, color) => {
-        let elements = document.getElementsByClassName('user-info');
-        if (elements.length === 1) {
-            // On a Gitlab profile, check the username(s).
-            const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
-            let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
-            if (match !== null && usernames.has(match[1])) {
-                stylize(element, color);
+        try {
+            let elements = document.getElementsByClassName('user-info');
+            if (elements.length === 1) {
+                // On a Gitlab profile, check the username(s).
+                const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
+                let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
+                if (match !== null && usernames.has(match[1])) {
+                    stylize(element, color);
+                }
             }
+        } catch(error) {
+            // The UI changed: log it to the console.
+            console.error(error);
         }
     };
 
@@ -364,8 +379,10 @@
     var USERNAMES;
     // Background color loaded from the store.
     var BACKGROUND_COLOR;
-    // Default timeout.
+    // Timeout before applying the styles.
     var TIMEOUT;
+    // URL to fetch the signer list from.
+    var URL$1;
 
     // HELPERS
 
@@ -395,7 +412,7 @@
         let refreshTime = await store.getRefresh();
         let refresh = requiresRefresh(currentDate, previousDate, refreshTime);
         if (refresh) {
-            USERNAMES = await fetchUsernames();
+            USERNAMES = await fetchUsernames(URL$1);
             let { github, gitlab } = USERNAMES;
             await store.setUsernames(currentDate, github, gitlab);
         } else {
@@ -438,8 +455,9 @@
      * Shared entry point based on a generic store.
      */
     var main = async store => {
-        TIMEOUT = await store.getTimeout();
         BACKGROUND_COLOR = await store.getBackgroundColor();
+        TIMEOUT = await store.getTimeout();
+        URL$1 = await store.getUrl();
         await loadUsernames(store);
 
         if (document.readyState == 'complete') {
@@ -504,6 +522,18 @@
         }
 
         /**
+         * Get the URL to fetch the signers from.
+         */
+        async function getUrl() {
+            let value = await storage.get('url');
+            if (typeof value.url !== 'undefined') {
+                return value.url;
+            }
+            // Default to the original Github URL if not set.
+            return 'https://rms-support-letter.github.io/';
+        }
+
+        /**
          * Get the updated timestamp.
          */
         async function getUpdated() {
@@ -541,6 +571,7 @@
             getRefresh,
             getTimeout,
             getUpdated,
+            getUrl,
             getUsernames,
             setUsernames
         };

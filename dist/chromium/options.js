@@ -105,6 +105,18 @@
         }
 
         /**
+         * Get the URL to fetch the signers from.
+         */
+        async function getUrl() {
+            let value = await storage.get('url');
+            if (typeof value.url !== 'undefined') {
+                return value.url;
+            }
+            // Default to the original Github URL if not set.
+            return 'https://rms-support-letter.github.io/';
+        }
+
+        /**
          * Get the updated timestamp.
          */
         async function getUpdated() {
@@ -142,6 +154,7 @@
             getRefresh,
             getTimeout,
             getUpdated,
+            getUrl,
             getUsernames,
             setUsernames
         };

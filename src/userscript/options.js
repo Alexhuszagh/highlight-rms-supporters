@@ -24,7 +24,14 @@ api.config.init({
             type: 'select',
             default: REFRESH.values[REFRESH['default']],
             options: Object.keys(REFRESH.labels)
-        }
+        },
+        // TODO(ahuszagh) Need to add a setting here...
+//        colorLabel: {
+//            label: 'Refresh Time:',
+//            type: 'select',
+//            default: REFRESH.values[REFRESH['default']],
+//            options: Object.keys(REFRESH.labels)
+//        }
     },
     events: {
         save: () => {

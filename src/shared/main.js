@@ -12,8 +12,10 @@ var CURRENT_URL = document.location.href;
 var USERNAMES;
 // Background color loaded from the store.
 var BACKGROUND_COLOR;
-// Default timeout.
+// Timeout before applying the styles.
 var TIMEOUT;
+// URL to fetch the signer list from.
+var URL;
 
 // HELPERS
 
@@ -43,7 +45,7 @@ const loadUsernames = async store => {
     let refreshTime = await store.getRefresh();
     let refresh = requiresRefresh(currentDate, previousDate, refreshTime);
     if (refresh) {
-        USERNAMES = await fetchUsernames();
+        USERNAMES = await fetchUsernames(URL);
         let { github, gitlab } = USERNAMES;
         await store.setUsernames(currentDate, github, gitlab);
     } else {
@@ -86,8 +88,9 @@ document.onreadystatechange = function () {
  * Shared entry point based on a generic store.
  */
 export default async store => {
-    TIMEOUT = await store.getTimeout();
     BACKGROUND_COLOR = await store.getBackgroundColor();
+    TIMEOUT = await store.getTimeout();
+    URL = await store.getUrl();
     await loadUsernames(store);
 
     if (document.readyState == 'complete') {
