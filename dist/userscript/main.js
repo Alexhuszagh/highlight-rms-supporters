@@ -103,13 +103,133 @@
     };
 
     /**
+     *  Get and set application-specific values using generic storage primitives.
+     */
+
+    /**
+     *  Deserialize usernames from JSON.
+     */
+    const deserializeUsernames = json =>
+        new Set(JSON.parse(json));
+
+    /**
+     *  Serialize usernames to JSON.
+     */
+    const serializeUsernames = usernames =>
+        JSON.stringify(Array.from(usernames));
+
+    /**
+     * Create the store from an abstract storage.
+     */
+    var createStore = storage => {
+        /**
+         * Get the refresh time.
+         */
+        async function getRefresh() {
+            let value = await storage.get('refresh');
+            if (typeof value.refresh !== 'undefined') {
+                return parseInt(value.refresh);
+            }
+            // Default to 1 day if not set.
+            return parseInt(REFRESH['default']);
+        }
+
+        /**
+         * Get the background color.
+         */
+        async function getBackgroundColor() {
+            let value = await storage.get('backgroundColor');
+            if (typeof value.backgroundColor !== 'undefined') {
+                return value.backgroundColor;
+            }
+            // Default to 'orange' if not set.
+            return 'orange';
+        }
+
+        /**
+         * Get the timeout to wait before highlighting.
+         */
+        async function getTimeout() {
+            let value = await storage.get('timeout');
+            if (typeof value.timeout !== 'undefined') {
+                return parseInt(value.timeout);
+            }
+            // Default to 500 milliseconds.
+            return parseInt(500);
+        }
+
+        /**
+         * Get the URL to fetch the signers from.
+         */
+        async function getUrl() {
+            let value = await storage.get('url');
+            if (typeof value.url !== 'undefined') {
+                return value.url;
+            }
+            // Default to the original Github URL if not set.
+            return 'https://rms-support-letter.github.io/';
+        }
+
+        /**
+         * Get the updated timestamp.
+         */
+        async function getUpdated() {
+            let value = await storage.get('updated');
+            if (typeof value.updated !== 'undefined') {
+                return new Date(value.updated);
+            }
+            return undefined;
+        }
+
+        /**
+         * Get the usernames to highlight RMS supporter signers.
+         */
+        async function getUsernames() {
+            let value = await storage.get(['github', 'gitlab']);
+            return {
+                github: deserializeUsernames(value.github),
+                gitlab: deserializeUsernames(value.gitlab)
+            };
+        }
+
+        /**
+         * Set the list of usernames and updated timestamp.
+         */
+        async function setUsernames(date, github, gitlab) {
+            storage.set({
+                updated: date.toUTCString(),
+                github: serializeUsernames(github),
+                gitlab: serializeUsernames(gitlab)
+            });
+        }
+
+        return {
+            getBackgroundColor,
+            getRefresh,
+            getTimeout,
+            getUpdated,
+            getUrl,
+            getUsernames,
+            setUsernames
+        };
+    };
+
+    /**
      * Configure user options for the RMS supporters highlighter.
      */
 
+    const store$1 = createStore(storage);
+
+    // Load refresh value from underlying storage.
+    const loadRefresh = async () => {
+        let refresh = await store$1.getRefresh();
+        GM_API.config.set('refreshLabel', REFRESH.values[refresh]);
+    };
+
     // Store the refresh value from the GM_Config label.
-    const setRefresh = () => {
+    const storeRefresh = async () => {
         let label = GM_API.config.get('refreshLabel');
-        storage.set({
+        await storage.set({
             'refresh': REFRESH.labels[label]
         });
     };
@@ -122,6 +242,7 @@
             refreshLabel: {
                 label: 'Refresh Time:',
                 type: 'select',
+                save: false,
                 default: REFRESH.values[REFRESH['default']],
                 options: Object.keys(REFRESH.labels)
             },
@@ -134,8 +255,11 @@
     //        }
         },
         events: {
-            save: () => {
-                setRefresh();
+            init: async () => {
+                await loadRefresh();
+            },
+            save: async () => {
+                await storeRefresh();
             }
         }
     });
@@ -299,7 +423,16 @@
 
                 // Check if the username exists in the set, and highlight it if it is.
                 if (usernames.has(username)) {
-                    stylize(link, color);
+                    // Stylize the parent if we have Github contributors
+                    // icons.This is because the link is on the icon,
+                    // which means the color is entirely ignored.
+                    let parent = link.parentElement;
+                    if (parent.className === 'mb-2 mr-2') {
+                        stylize(parent, color);
+                    } else {
+                        // Not a github contributors icon, stylize the link.
+                        stylize(link, color);
+                    }
                 }
             } catch(error) {
                 // Ignore.
@@ -463,118 +596,6 @@
         if (document.readyState == 'complete') {
             timeoutHighlight();
         }
-    };
-
-    /**
-     *  Get and set application-specific values using generic storage primitives.
-     */
-
-    /**
-     *  Deserialize usernames from JSON.
-     */
-    const deserializeUsernames = json =>
-        new Set(JSON.parse(json));
-
-    /**
-     *  Serialize usernames to JSON.
-     */
-    const serializeUsernames = usernames =>
-        JSON.stringify(Array.from(usernames));
-
-    /**
-     * Create the store from an abstract storage.
-     */
-    var createStore = storage => {
-        /**
-         * Get the refresh time.
-         */
-        async function getRefresh() {
-            let value = await storage.get('refresh');
-            if (typeof value.refresh !== 'undefined') {
-                return parseInt(value.refresh);
-            }
-            // Default to 1 day if not set.
-            return parseInt(REFRESH['default']);
-        }
-
-        /**
-         * Get the background color.
-         */
-        async function getBackgroundColor() {
-            let value = await storage.get('backgroundColor');
-            if (typeof value.backgroundColor !== 'undefined') {
-                return value.backgroundColor;
-            }
-            // Default to 'orange' if not set.
-            return 'orange';
-        }
-
-        /**
-         * Get the timeout to wait before highlighting.
-         */
-        async function getTimeout() {
-            let value = await storage.get('timeout');
-            if (typeof value.timeout !== 'undefined') {
-                return parseInt(value.timeout);
-            }
-            // Default to 500 milliseconds.
-            return parseInt(500);
-        }
-
-        /**
-         * Get the URL to fetch the signers from.
-         */
-        async function getUrl() {
-            let value = await storage.get('url');
-            if (typeof value.url !== 'undefined') {
-                return value.url;
-            }
-            // Default to the original Github URL if not set.
-            return 'https://rms-support-letter.github.io/';
-        }
-
-        /**
-         * Get the updated timestamp.
-         */
-        async function getUpdated() {
-            let value = await storage.get('updated');
-            if (typeof value.updated !== 'undefined') {
-                return new Date(value.updated);
-            }
-            return undefined;
-        }
-
-        /**
-         * Get the usernames to highlight RMS supporter signers.
-         */
-        async function getUsernames() {
-            let value = await storage.get(['github', 'gitlab']);
-            return {
-                github: deserializeUsernames(value.github),
-                gitlab: deserializeUsernames(value.gitlab)
-            };
-        }
-
-        /**
-         * Set the list of usernames and updated timestamp.
-         */
-        async function setUsernames(date, github, gitlab) {
-            storage.set({
-                updated: date.toUTCString(),
-                github: serializeUsernames(github),
-                gitlab: serializeUsernames(gitlab)
-            });
-        }
-
-        return {
-            getBackgroundColor,
-            getRefresh,
-            getTimeout,
-            getUpdated,
-            getUrl,
-            getUsernames,
-            setUsernames
-        };
     };
 
     /**

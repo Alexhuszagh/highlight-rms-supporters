@@ -178,7 +178,16 @@
 
                 // Check if the username exists in the set, and highlight it if it is.
                 if (usernames.has(username)) {
-                    stylize(link, color);
+                    // Stylize the parent if we have Github contributors
+                    // icons.This is because the link is on the icon,
+                    // which means the color is entirely ignored.
+                    let parent = link.parentElement;
+                    if (parent.className === 'mb-2 mr-2') {
+                        stylize(parent, color);
+                    } else {
+                        // Not a github contributors icon, stylize the link.
+                        stylize(link, color);
+                    }
                 }
             } catch(error) {
                 // Ignore.

@@ -5,11 +5,20 @@
 import api from './api.js';
 import storage from './storage.js';
 import { REFRESH } from '../shared/settings.js';
+import createStore from '../shared/store.js';
+
+const store = createStore(storage);
+
+// Load refresh value from underlying storage.
+const loadRefresh = async () => {
+    let refresh = await store.getRefresh();
+    api.config.set('refreshLabel', REFRESH.values[refresh]);
+}
 
 // Store the refresh value from the GM_Config label.
-const setRefresh = () => {
+const storeRefresh = async () => {
     let label = api.config.get('refreshLabel');
-    storage.set({
+    await storage.set({
         'refresh': REFRESH.labels[label]
     });
 }
@@ -22,6 +31,7 @@ api.config.init({
         refreshLabel: {
             label: 'Refresh Time:',
             type: 'select',
+            save: false,
             default: REFRESH.values[REFRESH['default']],
             options: Object.keys(REFRESH.labels)
         },
@@ -34,8 +44,11 @@ api.config.init({
 //        }
     },
     events: {
-        save: () => {
-            setRefresh();
+        init: async () => {
+            await loadRefresh();
+        },
+        save: async () => {
+            await storeRefresh();
         }
     }
 });
