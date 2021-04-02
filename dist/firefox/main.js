@@ -357,24 +357,31 @@
      * Enumerated use options and defaults.
      */
 
-    const REFRESH_LABELS = {
-      '10 minutes': '600000',
-      '1 hour': '3600000',
-      '1 day': '86400000',
-      'Never': '9007199254740991'
-    };
-
-    const REFRESH_VALUES = {
-      '600000': '10 minutes',
-      '3600000': '1 hour',
-      '86400000': '1 day',
-      '9007199254740991': 'Never'
-    };
-
-    const REFRESH = {
-      'default': '86400000',
-      labels: REFRESH_LABELS,
-      values: REFRESH_VALUES
+    var settings = {
+        refresh: {
+            'default': '86400000',
+            labels: {
+                '10 minutes': '600000',
+                '1 hour': '3600000',
+                '1 day': '86400000',
+                'Never': '9007199254740991'
+            },
+            values: {
+                '600000': '10 minutes',
+                '3600000': '1 hour',
+                '86400000': '1 day',
+                '9007199254740991': 'Never'
+            }
+        },
+        backgroundColor: {
+            'default': 'orange'
+        },
+        timeout: {
+            'default': 500
+        },
+        url: {
+            'default': 'https://rms-support-letter.github.io/'
+        }
     };
 
     /**
@@ -406,7 +413,7 @@
                 return parseInt(value.refresh);
             }
             // Default to 1 day if not set.
-            return parseInt(REFRESH['default']);
+            return parseInt(settings.refresh['default']);
         }
 
         /**
@@ -417,8 +424,7 @@
             if (typeof value.backgroundColor !== 'undefined') {
                 return value.backgroundColor;
             }
-            // Default to 'orange' if not set.
-            return 'orange';
+            return settings.backgroundColor['default'];
         }
 
         /**
@@ -427,10 +433,9 @@
         async function getTimeout() {
             let value = await storage.get('timeout');
             if (typeof value.timeout !== 'undefined') {
-                return parseInt(value.timeout);
+                return value.timeout;
             }
-            // Default to 500 milliseconds.
-            return parseInt(500);
+            return settings.timeout['default'];
         }
 
         /**
@@ -441,8 +446,7 @@
             if (typeof value.url !== 'undefined') {
                 return value.url;
             }
-            // Default to the original Github URL if not set.
-            return 'https://rms-support-letter.github.io/';
+            return settings.url['default'];
         }
 
         /**

@@ -79,27 +79,51 @@
     };
 
     /**
+     * Color utilities.
+     */
+
+    /**
+     * Validate a color field.
+     */
+    const validate$1 = color => {
+        const style = new Option().style;
+        style.color = color;
+        return style.color !== '';
+    };
+
+    var color = {
+        validate: validate$1
+    };
+
+    /**
      * Enumerated use options and defaults.
      */
 
-    const REFRESH_LABELS = {
-      '10 minutes': '600000',
-      '1 hour': '3600000',
-      '1 day': '86400000',
-      'Never': '9007199254740991'
-    };
-
-    const REFRESH_VALUES = {
-      '600000': '10 minutes',
-      '3600000': '1 hour',
-      '86400000': '1 day',
-      '9007199254740991': 'Never'
-    };
-
-    const REFRESH = {
-      'default': '86400000',
-      labels: REFRESH_LABELS,
-      values: REFRESH_VALUES
+    var settings = {
+        refresh: {
+            'default': '86400000',
+            labels: {
+                '10 minutes': '600000',
+                '1 hour': '3600000',
+                '1 day': '86400000',
+                'Never': '9007199254740991'
+            },
+            values: {
+                '600000': '10 minutes',
+                '3600000': '1 hour',
+                '86400000': '1 day',
+                '9007199254740991': 'Never'
+            }
+        },
+        backgroundColor: {
+            'default': 'orange'
+        },
+        timeout: {
+            'default': 500
+        },
+        url: {
+            'default': 'https://rms-support-letter.github.io/'
+        }
     };
 
     /**
@@ -131,7 +155,7 @@
                 return parseInt(value.refresh);
             }
             // Default to 1 day if not set.
-            return parseInt(REFRESH['default']);
+            return parseInt(settings.refresh['default']);
         }
 
         /**
@@ -142,8 +166,7 @@
             if (typeof value.backgroundColor !== 'undefined') {
                 return value.backgroundColor;
             }
-            // Default to 'orange' if not set.
-            return 'orange';
+            return settings.backgroundColor['default'];
         }
 
         /**
@@ -152,10 +175,9 @@
         async function getTimeout() {
             let value = await storage.get('timeout');
             if (typeof value.timeout !== 'undefined') {
-                return parseInt(value.timeout);
+                return value.timeout;
             }
-            // Default to 500 milliseconds.
-            return parseInt(500);
+            return settings.timeout['default'];
         }
 
         /**
@@ -166,8 +188,7 @@
             if (typeof value.url !== 'undefined') {
                 return value.url;
             }
-            // Default to the original Github URL if not set.
-            return 'https://rms-support-letter.github.io/';
+            return settings.url['default'];
         }
 
         /**
@@ -215,22 +236,57 @@
     };
 
     /**
+     * URL utilities.
+     */
+
+    /**
+     * Validate a URL field.
+     */
+    const validate = url => {
+        try {
+            let _ = new URL(url);
+            return true;
+        } catch(error) {
+            return false;
+        }
+    };
+
+    var url = {
+        validate
+    };
+
+    /**
      * Configure user options for the RMS supporters highlighter.
      */
 
     const store$1 = createStore(storage);
 
-    // Load refresh value from underlying storage.
-    const loadRefresh = async () => {
-        let refresh = await store$1.getRefresh();
-        GM_API.config.set('refreshLabel', REFRESH.values[refresh]);
-    };
-
     // Store the refresh value from the GM_Config label.
     const storeRefresh = async () => {
         let label = GM_API.config.get('refreshLabel');
         await storage.set({
-            'refresh': REFRESH.labels[label]
+            'refresh': settings.refresh.labels[label]
+        });
+    };
+
+    // Store the timeout delay from the GM_Config label.
+    const storeTimeout = async () => {
+        await storage.set({
+            'timeout': GM_API.config.get('timeoutLabel')
+        });
+    };
+
+    // Store the RMS support letter URL from the GM_Config label.
+    const storeUrl = async () => {
+        await storage.set({
+            'url': GM_API.config.get('urlLabel')
+        });
+    };
+
+    // Store the highlight color from the GM_Config label.
+    const storeColor = async () => {
+        await storage.set({
+            'backgroundColor': GM_API.config.get('colorLabel')
         });
     };
 
@@ -242,24 +298,66 @@
             refreshLabel: {
                 label: 'Refresh Time:',
                 type: 'select',
-                save: false,
-                default: REFRESH.values[REFRESH['default']],
-                options: Object.keys(REFRESH.labels)
+                default: settings.refresh.values[settings.refresh['default']],
+                options: Object.keys(settings.refresh.labels)
             },
-            // TODO(ahuszagh) Need to add a setting here...
-    //        colorLabel: {
-    //            label: 'Refresh Time:',
-    //            type: 'select',
-    //            default: REFRESH.values[REFRESH['default']],
-    //            options: Object.keys(REFRESH.labels)
-    //        }
+            timeoutLabel: {
+                label: 'Display Delay',
+                type: 'int',
+                min: 1,
+                max: 2000,
+                default: settings.timeout['default']
+            },
+            urlLabel: {
+                label: 'RMS Support Letter URL',
+                type: 'text',
+                default: settings.url['default'],
+                // Unlikely to be longer than 100, in practice.
+                size: 100
+            },
+            colorLabel: {
+                label: 'Highlight Color',
+                type: 'text',
+                default: settings.backgroundColor['default']
+            }
         },
         events: {
-            init: async () => {
-                await loadRefresh();
-            },
             save: async () => {
+                // Even if the int validator fails, other values are stored.
                 await storeRefresh();
+                await storeTimeout();
+
+                // Validate and optionally store URL.
+                if (url.validate(GM_API.config.get('urlLabel'))) {
+                    await storeUrl();
+                } else {
+                    alert('"RMS Support Letter URL" requires a valid URL.');
+                }
+
+                // Validate and optionally store the color.
+                if (color.validate(GM_API.config.get('colorLabel'))) {
+                    await storeColor();
+                } else {
+                    alert('"Highlight Color" requires a valid CSS color.');
+                }
+            },
+
+            open: async () => {
+                // Reset the displayed URL on open if the URL differs.
+                // This way, we can reset our displayed field.
+                let displayedUrl = GM_API.config.get('urlLabel');
+                let storedUrl = await store$1.getUrl();
+                if (displayedUrl !== storedUrl) {
+                    GM_API.config.set('urlLabel', storedUrl);
+                }
+
+                // Reset the displayed color on open if the color differs.
+                // This way, we can reset our displayed field.
+                let displayedColor = GM_API.config.get('colorLabel');
+                let storedColor = await store$1.getBackgroundColor();
+                if (displayedColor !== storedColor) {
+                    GM_API.config.set('colorLabel', storedColor);
+                }
             }
         }
     });

@@ -2,7 +2,7 @@
  *  Get and set application-specific values using generic storage primitives.
  */
 
-import { REFRESH } from './settings.js';
+import settings from './settings.js';
 
 /**
  *  Deserialize usernames from JSON.
@@ -29,7 +29,7 @@ export default storage => {
             return parseInt(value.refresh);
         }
         // Default to 1 day if not set.
-        return parseInt(REFRESH['default']);
+        return parseInt(settings.refresh['default']);
     }
 
     /**
@@ -40,8 +40,7 @@ export default storage => {
         if (typeof value.backgroundColor !== 'undefined') {
             return value.backgroundColor;
         }
-        // Default to 'orange' if not set.
-        return 'orange';
+        return settings.backgroundColor['default'];
     }
 
     /**
@@ -50,10 +49,9 @@ export default storage => {
     async function getTimeout() {
         let value = await storage.get('timeout');
         if (typeof value.timeout !== 'undefined') {
-            return parseInt(value.timeout);
+            return value.timeout;
         }
-        // Default to 500 milliseconds.
-        return parseInt(500);
+        return settings.timeout['default'];
     }
 
     /**
@@ -64,8 +62,7 @@ export default storage => {
         if (typeof value.url !== 'undefined') {
             return value.url;
         }
-        // Default to the original Github URL if not set.
-        return 'https://rms-support-letter.github.io/';
+        return settings.url['default'];
     }
 
     /**
