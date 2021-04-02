@@ -20,19 +20,12 @@ var URL;
 // HELPERS
 
 /**
- * Asynchronous timeout function.
+ * Check if we can highlight (if usernames has been loaded).
  */
-const timeout = milliseconds =>
-    new Promise(resolve => setTimeout(resolve, milliseconds));
-
-/**
- * Highlight after timeout.
- */
-const timeoutHighlight = async () => {
+const checkHighlight = async dom => {
     // Wait for a short period, then highlight the usernames.
     if (typeof USERNAMES !== 'undefined') {
-        await timeout(TIMEOUT);
-        highlight(USERNAMES, BACKGROUND_COLOR);
+        highlight(dom, USERNAMES, BACKGROUND_COLOR);
     }
 }
 
@@ -56,31 +49,23 @@ const loadUsernames = async store => {
 // EVENTS
 
 /**
- * Track URL changes and re-highlight on changes.
+ * Track added nodes to the DOM and re-highlight the changes.
  */
 window.onload = () => {
     const body = document.querySelector('body');
     const observer = new MutationObserver(mutations => {
         mutations.forEach(mutation => {
-            if (CURRENT_URL !== document.location.href) {
-                // Track URL changes and re-highlight.
-                CURRENT_URL = document.location.href;
-                timeoutHighlight();
+            for (const node of mutation.addedNodes) {
+                // We have an added node we can traverse.
+                if (typeof node.getElementsByClassName !== 'undefined') {
+                    checkHighlight(node);
+                }
             }
         });
     });
 
     observer.observe(body, { childList: true, subtree: true });
 };
-
-/**
- * Highlight when the document's ready state is complete.
- */
-document.onreadystatechange = function () {
-    if (document.readyState === 'complete') {
-        timeoutHighlight();
-    }
-}
 
 // ENTRY POINT
 
@@ -93,7 +78,5 @@ export default async store => {
     URL = await store.getUrl();
     await loadUsernames(store);
 
-    if (document.readyState == 'complete') {
-        timeoutHighlight();
-    }
+    checkHighlight(document);
 }

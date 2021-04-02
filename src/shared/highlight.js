@@ -70,8 +70,8 @@ const extractUsername = url => {
 /**
  * Highlight anchor tags with hrefs.
  */
-const highlightLinks = (usernames, domain, color) => {
-    let links = document.getElementsByTagName('a');
+const highlightLinks = (dom, usernames, domain, color) => {
+    let links = dom.getElementsByTagName('a');
     let absolute = `https://${domain}`
     for (const link of links) {
         // URL can be relative or absolute or invalid.
@@ -102,9 +102,9 @@ const highlightLinks = (usernames, domain, color) => {
 /**
  * Highlight user ID on the Github profile.
  */
-const highlightGithubProfile = (usernames, color) => {
+const highlightGithubProfile = (dom, usernames, color) => {
     try {
-        let elements = document.getElementsByClassName('vcard-username');
+        let elements = dom.getElementsByClassName('vcard-username');
         if (elements.length === 1) {
             // On a Github profile, check the username(s).
             const element = elements[0];
@@ -121,9 +121,9 @@ const highlightGithubProfile = (usernames, color) => {
 /**
  * Highlight user ID on the Gitlab profile.
  */
-const highlightGitlabProfile = (usernames, color) => {
+const highlightGitlabProfile = (dom, usernames, color) => {
     try {
-        let elements = document.getElementsByClassName('user-info');
+        let elements = dom.getElementsByClassName('user-info');
         if (elements.length === 1) {
             // On a Gitlab profile, check the username(s).
             const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
@@ -139,24 +139,15 @@ const highlightGitlabProfile = (usernames, color) => {
 }
 
 /**
- * Generalized highlight function.
- */
-const highlight = (usernames, domain, isGithub, isGitlab, color) => {
-    if (isGithub) {
-        highlightLinks(usernames.github, domain, color);
-        highlightGithubProfile(usernames.github, color);
-    } else if (isGitlab) {
-        highlightLinks(usernames.gitlab, domain, color);
-        highlightGitlabProfile(usernames.gitlab, color);
-    }
-}
-
-/**
  * Detect website to provide correct list of usernames.
  */
-export default (usernames, color) => {
+export default (dom, usernames, color) => {
     const domain = window.location.hostname;
-    const isGithub = GITHUB_DOMAIN_RE.test(domain);
-    const isGitlab = GITLAB_DOMAIN_RE.test(domain);
-    highlight(usernames, domain, isGithub, isGitlab, color);
+    if (GITHUB_DOMAIN_RE.test(domain)) {
+        highlightLinks(dom, usernames.github, domain, color);
+        highlightGithubProfile(dom, usernames.github, color);
+    } else if (GITLAB_DOMAIN_RE.test(domain)) {
+        highlightLinks(dom, usernames.gitlab, domain, color);
+        highlightGitlabProfile(dom, usernames.gitlab, color);
+    }
 }

@@ -193,8 +193,8 @@
     /**
      * Highlight anchor tags with hrefs.
      */
-    const highlightLinks = (usernames, domain, color) => {
-        let links = document.getElementsByTagName('a');
+    const highlightLinks = (dom, usernames, domain, color) => {
+        let links = dom.getElementsByTagName('a');
         let absolute = `https://${domain}`;
         for (const link of links) {
             // URL can be relative or absolute or invalid.
@@ -225,9 +225,9 @@
     /**
      * Highlight user ID on the Github profile.
      */
-    const highlightGithubProfile = (usernames, color) => {
+    const highlightGithubProfile = (dom, usernames, color) => {
         try {
-            let elements = document.getElementsByClassName('vcard-username');
+            let elements = dom.getElementsByClassName('vcard-username');
             if (elements.length === 1) {
                 // On a Github profile, check the username(s).
                 const element = elements[0];
@@ -244,9 +244,9 @@
     /**
      * Highlight user ID on the Gitlab profile.
      */
-    const highlightGitlabProfile = (usernames, color) => {
+    const highlightGitlabProfile = (dom, usernames, color) => {
         try {
-            let elements = document.getElementsByClassName('user-info');
+            let elements = dom.getElementsByClassName('user-info');
             if (elements.length === 1) {
                 // On a Gitlab profile, check the username(s).
                 const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
@@ -262,26 +262,17 @@
     };
 
     /**
-     * Generalized highlight function.
-     */
-    const highlight = (usernames, domain, isGithub, isGitlab, color) => {
-        if (isGithub) {
-            highlightLinks(usernames.github, domain, color);
-            highlightGithubProfile(usernames.github, color);
-        } else if (isGitlab) {
-            highlightLinks(usernames.gitlab, domain, color);
-            highlightGitlabProfile(usernames.gitlab, color);
-        }
-    };
-
-    /**
      * Detect website to provide correct list of usernames.
      */
-    var highlight$1 = (usernames, color) => {
+    var highlight = (dom, usernames, color) => {
         const domain = window.location.hostname;
-        const isGithub = GITHUB_DOMAIN_RE.test(domain);
-        const isGitlab = GITLAB_DOMAIN_RE.test(domain);
-        highlight(usernames, domain, isGithub, isGitlab, color);
+        if (GITHUB_DOMAIN_RE.test(domain)) {
+            highlightLinks(dom, usernames.github, domain, color);
+            highlightGithubProfile(dom, usernames.github, color);
+        } else if (GITLAB_DOMAIN_RE.test(domain)) {
+            highlightLinks(dom, usernames.gitlab, domain, color);
+            highlightGitlabProfile(dom, usernames.gitlab, color);
+        }
     };
 
     /**
@@ -289,32 +280,23 @@
      */
 
     // Current URL at pageload.
-    var CURRENT_URL = document.location.href;
+    document.location.href;
     // Usernames loaded from the store.
     var USERNAMES;
     // Background color loaded from the store.
     var BACKGROUND_COLOR;
-    // Timeout before applying the styles.
-    var TIMEOUT;
     // URL to fetch the signer list from.
     var URL$1;
 
     // HELPERS
 
     /**
-     * Asynchronous timeout function.
+     * Check if we can highlight (if usernames has been loaded).
      */
-    const timeout = milliseconds =>
-        new Promise(resolve => setTimeout(resolve, milliseconds));
-
-    /**
-     * Highlight after timeout.
-     */
-    const timeoutHighlight = async () => {
+    const checkHighlight = async dom => {
         // Wait for a short period, then highlight the usernames.
         if (typeof USERNAMES !== 'undefined') {
-            await timeout(TIMEOUT);
-            highlight$1(USERNAMES, BACKGROUND_COLOR);
+            highlight(dom, USERNAMES, BACKGROUND_COLOR);
         }
     };
 
@@ -338,30 +320,22 @@
     // EVENTS
 
     /**
-     * Track URL changes and re-highlight on changes.
+     * Track added nodes to the DOM and re-highlight the changes.
      */
     window.onload = () => {
         const body = document.querySelector('body');
         const observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
-                if (CURRENT_URL !== document.location.href) {
-                    // Track URL changes and re-highlight.
-                    CURRENT_URL = document.location.href;
-                    timeoutHighlight();
+                for (const node of mutation.addedNodes) {
+                    // We have an added node we can traverse.
+                    if (typeof node.getElementsByClassName !== 'undefined') {
+                        checkHighlight(node);
+                    }
                 }
             });
         });
 
         observer.observe(body, { childList: true, subtree: true });
-    };
-
-    /**
-     * Highlight when the document's ready state is complete.
-     */
-    document.onreadystatechange = function () {
-        if (document.readyState === 'complete') {
-            timeoutHighlight();
-        }
     };
 
     // ENTRY POINT
@@ -371,13 +345,11 @@
      */
     var main = async store => {
         BACKGROUND_COLOR = await store.getBackgroundColor();
-        TIMEOUT = await store.getTimeout();
+        await store.getTimeout();
         URL$1 = await store.getUrl();
         await loadUsernames(store);
 
-        if (document.readyState == 'complete') {
-            timeoutHighlight();
-        }
+        checkHighlight(document);
     };
 
     /**
