@@ -8,6 +8,7 @@
 // @match              https://*.github.io/*
 // @match              https://gitlab.com/*
 // @match              https://*.gitlab.io/*
+// @run-at             document-start
 // @require            https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant              GM_getValue
 // @grant              GM_setValue

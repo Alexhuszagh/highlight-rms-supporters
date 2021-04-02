@@ -8,6 +8,7 @@
 // @match              https://*.github.io/*
 // @match              https://gitlab.com/*
 // @match              https://*.gitlab.io/*
+// @run-at             document-start
 // @require            https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant              GM_getValue
 // @grant              GM_setValue
@@ -188,69 +189,29 @@
     };
 
     /**
-     * Generate CSS styles from a list of usernames.
-     */
-
-    // Regex matching github domain names.
-    const GITHUB_DOMAIN_RE = /^(?:(?:github\.com)|(?:.*\.github\.io))$/;
-
-    // Regex matching gitlab domain names.
-    const GITLAB_DOMAIN_RE = /^(?:(?:gitlab\.com)|(?:.*\.gitlab\.io))$/;
-
-    /**
-     * Generate the CSS style from names.
-     */
-    const generate = usernames => {
-        const highlight = '{ background-color: Orange; }';
-        const selector = usernames
-            .map(item => `a[href$="/${item}" I]`)
-            .join(', ');
-        return `${selector}\n${highlight}`;
-    };
-
-    /**
-     * Apply a stylesheet to the current URL.
-     */
-    const apply = stylesheets => {
-        const style = document.createElement('style');
-        const domain = window.location.hostname;
-        if (GITHUB_DOMAIN_RE.test(domain)) {
-            style.innerHTML = stylesheets.github;
-        } else if (GITLAB_DOMAIN_RE.test(domain)) {
-            style.innerHTML = stylesheets.gitlab;
-        }
-        document.head.appendChild(style);
-    };
-
-    var style = {
-      generate,
-      apply
-    };
-
-    /**
      *  Fetch signer list from the RMS support letter.
      */
 
-    const URL = 'https://rms-support-letter.github.io/';
+    const URL$1 = 'https://rms-support-letter.github.io/';
 
     /**
      * Fetch HTML from the supporters URL.
      */
     const getSupportersHtml = () =>
-        fetch(URL)
+        fetch(URL$1)
             .then(response => response.text());
 
     /**
-     * Fetch signers and generate the stylesheets.
+     * Fetch signers and generate the username mappings.
      */
-    var fetchAndGenerateStyleSheets = async () => {
+    var fetchUsernames = async () => {
         let signers = await getSupportersHtml()
             .then(text => toHtml(text))
             .then(html => extractSignerList(html));
 
         // Create stylesheets from the signer lists.
-        let github = style.generate(signers.github);
-        let gitlab = style.generate(signers.gitlab);
+        let github = new Set(signers.github);
+        let gitlab = new Set(signers.gitlab);
 
         return {
             github,
@@ -277,33 +238,230 @@
     };
 
     /**
+     * Highlight list of usernames.
+     */
+
+    // Regex matching github domain names.
+    const GITHUB_DOMAIN_RE = /^(?:(?:github\.com)|(?:.*\.github\.io))$/;
+
+    // Regex matching gitlab domain names.
+    const GITLAB_DOMAIN_RE = /^(?:(?:gitlab\.com)|(?:.*\.gitlab\.io))$/;
+
+    /**
+     * Add style to the element.
+     */
+    const stylize = (element, color) => {
+        element.style.backgroundColor = color;
+    };
+
+    /**
+     * Detect if a URL corresponds to a give author.
+     *
+     * In order to avoid spam, we only highlight if:
+     *    1). The link only has the user (github.com/user).
+     *    2). The link refers to a commit with the user
+     *        (github.com/user/repo/commits&author=user).
+     */
+    const extractUsername = url => {
+        // Check if the username exists in the set, and highlight it if it is.
+        var username;
+        if (url.search.length === 0) {
+            // No search terms, remove the leading slash, and trailing slash if applicable.
+            username = url.pathname.slice(1);
+            if (username.slice(-1) === '/') {
+                username = username.slice(0, 1);
+            }
+        } else if (url.pathname.endsWith('commits')) {
+            // Has commits, check the author field.
+            username = url.searchParams.get('author');
+        }
+
+        return username;
+    };
+
+    /**
+     * Highlight anchor tags with hrefs.
+     */
+    const highlightLinks = (usernames, domain, color) => {
+        let links = document.getElementsByTagName('a');
+        let absolute = `https://${domain}`;
+        for (const link of links) {
+            // URL can be relative or absolute or invalid.
+            try {
+                // Parse the URL, get the username from the url.
+                let url = new URL(link.href, absolute);
+                let username = extractUsername(url);
+
+                // Check if the username exists in the set, and highlight it if it is.
+                if (usernames.has(username)) {
+                    stylize(link, color);
+                }
+            } catch(error) {
+                // Ignore.
+            }
+        }
+    };
+
+    /**
+     * Highlight user ID on the Github profile.
+     */
+    const highlightGithubProfile = (usernames, color) => {
+        let elements = document.getElementsByClassName('vcard-username');
+        if (elements.length === 1) {
+            // On a Github profile, check the username(s).
+            const element = elements[0];
+            if (usernames.has(element.innerText)) {
+                stylize(element, color);
+            }
+        }
+    };
+
+    /**
+     * Highlight user ID on the Gitlab profile.
+     */
+    const highlightGitlabProfile = (usernames, color) => {
+        let elements = document.getElementsByClassName('user-info');
+        if (elements.length === 1) {
+            // On a Gitlab profile, check the username(s).
+            const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
+            let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
+            if (match !== null && usernames.has(match[1])) {
+                stylize(element, color);
+            }
+        }
+    };
+
+    /**
+     * Generalized highlight function.
+     */
+    const highlight = (usernames, domain, isGithub, isGitlab, color) => {
+        if (isGithub) {
+            highlightLinks(usernames.github, domain, color);
+            highlightGithubProfile(usernames.github, color);
+        } else if (isGitlab) {
+            highlightLinks(usernames.gitlab, domain, color);
+            highlightGitlabProfile(usernames.gitlab, color);
+        }
+    };
+
+    /**
+     * Detect website to provide correct list of usernames.
+     */
+    var highlight$1 = (usernames, color) => {
+        const domain = window.location.hostname;
+        const isGithub = GITHUB_DOMAIN_RE.test(domain);
+        const isGitlab = GITLAB_DOMAIN_RE.test(domain);
+        highlight(usernames, domain, isGithub, isGitlab, color);
+    };
+
+    /**
      *  Fetch signer list from the RMS support letter.
      */
+
+    // Current URL at pageload.
+    var CURRENT_URL = document.location.href;
+    // Usernames loaded from the store.
+    var USERNAMES;
+    // Background color loaded from the store.
+    var BACKGROUND_COLOR;
+    // Default timeout.
+    var TIMEOUT;
+
+    // HELPERS
+
+    /**
+     * Asynchronous timeout function.
+     */
+    const timeout = milliseconds =>
+        new Promise(resolve => setTimeout(resolve, milliseconds));
+
+    /**
+     * Highlight after timeout.
+     */
+    const timeoutHighlight = async () => {
+        // Wait for a short period, then highlight the usernames.
+        if (typeof USERNAMES !== 'undefined') {
+            await timeout(TIMEOUT);
+            highlight$1(USERNAMES, BACKGROUND_COLOR);
+        }
+    };
+
+    /**
+     * Load the usernames from store or file.
+     */
+    const loadUsernames = async store => {
+        let currentDate = new Date();
+        let previousDate = await store.getUpdated();
+        let refreshTime = await store.getRefresh();
+        let refresh = requiresRefresh(currentDate, previousDate, refreshTime);
+        if (refresh) {
+            USERNAMES = await fetchUsernames();
+            let { github, gitlab } = USERNAMES;
+            await store.setUsernames(currentDate, github, gitlab);
+        } else {
+            USERNAMES = await store.getUsernames();
+        }
+    };
+
+    // EVENTS
+
+    /**
+     * Track URL changes and re-highlight on changes.
+     */
+    window.onload = () => {
+        const body = document.querySelector('body');
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (CURRENT_URL !== document.location.href) {
+                    // Track URL changes and re-highlight.
+                    CURRENT_URL = document.location.href;
+                    timeoutHighlight();
+                }
+            });
+        });
+
+        observer.observe(body, { childList: true, subtree: true });
+    };
+
+    /**
+     * Highlight when the document's ready state is complete.
+     */
+    document.onreadystatechange = function () {
+        if (document.readyState === 'complete') {
+            timeoutHighlight();
+        }
+    };
+
+    // ENTRY POINT
 
     /**
      * Shared entry point based on a generic store.
      */
     var main = async store => {
-        let currentDate = new Date();
-        let previousDate = await store.getUpdated();
-        let refreshTime = await store.getRefresh();
-        let refresh = requiresRefresh(currentDate, previousDate, refreshTime);
-        var stylesheets;
-        if (refresh) {
-            stylesheets = await fetchAndGenerateStyleSheets();
-            let { github, gitlab } = stylesheets;
-            await store.setStyleSheets(currentDate, github, gitlab);
-        } else {
-            stylesheets = await store.getStyleSheets();
-        }
+        TIMEOUT = await store.getTimeout();
+        BACKGROUND_COLOR = await store.getBackgroundColor();
+        await loadUsernames(store);
 
-        // Apply the CSS styles for the current page.
-        style.apply(stylesheets);
+        if (document.readyState == 'complete') {
+            timeoutHighlight();
+        }
     };
 
     /**
      *  Get and set application-specific values using generic storage primitives.
      */
+
+    /**
+     *  Deserialize usernames from JSON.
+     */
+    const deserializeUsernames = json =>
+        new Set(JSON.parse(json));
+
+    /**
+     *  Serialize usernames to JSON.
+     */
+    const serializeUsernames = usernames =>
+        JSON.stringify(Array.from(usernames));
 
     /**
      * Create the store from an abstract storage.
@@ -322,6 +480,30 @@
         }
 
         /**
+         * Get the background color.
+         */
+        async function getBackgroundColor() {
+            let value = await storage.get('backgroundColor');
+            if (typeof value.backgroundColor !== 'undefined') {
+                return value.backgroundColor;
+            }
+            // Default to 'orange' if not set.
+            return 'orange';
+        }
+
+        /**
+         * Get the timeout to wait before highlighting.
+         */
+        async function getTimeout() {
+            let value = await storage.get('timeout');
+            if (typeof value.timeout !== 'undefined') {
+                return parseInt(value.timeout);
+            }
+            // Default to 500 milliseconds.
+            return parseInt(500);
+        }
+
+        /**
          * Get the updated timestamp.
          */
         async function getUpdated() {
@@ -333,32 +515,34 @@
         }
 
         /**
-         * Get the stylesheets to highlight RMS supporter signers.
+         * Get the usernames to highlight RMS supporter signers.
          */
-        async function getStyleSheets() {
+        async function getUsernames() {
             let value = await storage.get(['github', 'gitlab']);
             return {
-                github: value.github,
-                gitlab: value.gitlab
+                github: deserializeUsernames(value.github),
+                gitlab: deserializeUsernames(value.gitlab)
             };
         }
 
         /**
-         * Set the list of stylesheets and updated timestamp.
+         * Set the list of usernames and updated timestamp.
          */
-        async function setStyleSheets(date, github, gitlab) {
+        async function setUsernames(date, github, gitlab) {
             storage.set({
                 updated: date.toUTCString(),
-                github,
-                gitlab
+                github: serializeUsernames(github),
+                gitlab: serializeUsernames(gitlab)
             });
         }
 
         return {
-            getUpdated,
+            getBackgroundColor,
             getRefresh,
-            getStyleSheets,
-            setStyleSheets
+            getTimeout,
+            getUpdated,
+            getUsernames,
+            setUsernames
         };
     };
 

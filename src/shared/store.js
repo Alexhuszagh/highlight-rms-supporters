@@ -33,6 +33,30 @@ export default storage => {
     }
 
     /**
+     * Get the background color.
+     */
+    async function getBackgroundColor() {
+        let value = await storage.get('backgroundColor');
+        if (typeof value.backgroundColor !== 'undefined') {
+            return value.backgroundColor;
+        }
+        // Default to 'orange' if not set.
+        return 'orange';
+    }
+
+    /**
+     * Get the timeout to wait before highlighting.
+     */
+    async function getTimeout() {
+        let value = await storage.get('timeout');
+        if (typeof value.timeout !== 'undefined') {
+            return parseInt(value.timeout);
+        }
+        // Default to 500 milliseconds.
+        return parseInt(500);
+    }
+
+    /**
      * Get the updated timestamp.
      */
     async function getUpdated() {
@@ -66,8 +90,10 @@ export default storage => {
     }
 
     return {
-        getUpdated,
+        getBackgroundColor,
         getRefresh,
+        getTimeout,
+        getUpdated,
         getUsernames,
         setUsernames
     };

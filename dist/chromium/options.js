@@ -53,6 +53,18 @@
      */
 
     /**
+     *  Deserialize usernames from JSON.
+     */
+    const deserializeUsernames = json =>
+        new Set(JSON.parse(json));
+
+    /**
+     *  Serialize usernames to JSON.
+     */
+    const serializeUsernames = usernames =>
+        JSON.stringify(Array.from(usernames));
+
+    /**
      * Create the store from an abstract storage.
      */
     var createStore = storage => {
@@ -69,6 +81,30 @@
         }
 
         /**
+         * Get the background color.
+         */
+        async function getBackgroundColor() {
+            let value = await storage.get('backgroundColor');
+            if (typeof value.backgroundColor !== 'undefined') {
+                return value.backgroundColor;
+            }
+            // Default to 'orange' if not set.
+            return 'orange';
+        }
+
+        /**
+         * Get the timeout to wait before highlighting.
+         */
+        async function getTimeout() {
+            let value = await storage.get('timeout');
+            if (typeof value.timeout !== 'undefined') {
+                return parseInt(value.timeout);
+            }
+            // Default to 500 milliseconds.
+            return parseInt(500);
+        }
+
+        /**
          * Get the updated timestamp.
          */
         async function getUpdated() {
@@ -80,32 +116,34 @@
         }
 
         /**
-         * Get the stylesheets to highlight RMS supporter signers.
+         * Get the usernames to highlight RMS supporter signers.
          */
-        async function getStyleSheets() {
+        async function getUsernames() {
             let value = await storage.get(['github', 'gitlab']);
             return {
-                github: value.github,
-                gitlab: value.gitlab
+                github: deserializeUsernames(value.github),
+                gitlab: deserializeUsernames(value.gitlab)
             };
         }
 
         /**
-         * Set the list of stylesheets and updated timestamp.
+         * Set the list of usernames and updated timestamp.
          */
-        async function setStyleSheets(date, github, gitlab) {
+        async function setUsernames(date, github, gitlab) {
             storage.set({
                 updated: date.toUTCString(),
-                github,
-                gitlab
+                github: serializeUsernames(github),
+                gitlab: serializeUsernames(gitlab)
             });
         }
 
         return {
-            getUpdated,
+            getBackgroundColor,
             getRefresh,
-            getStyleSheets,
-            setStyleSheets
+            getTimeout,
+            getUpdated,
+            getUsernames,
+            setUsernames
         };
     };
 
