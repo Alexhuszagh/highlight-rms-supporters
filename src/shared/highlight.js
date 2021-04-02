@@ -54,7 +54,7 @@ const highlightLinks = (usernames, domain, color) => {
             let username = extractUsername(url);
 
             // Check if the username exists in the set, and highlight it if it is.
-            if (usernames.has(username)) {
+            if (usernames.has(username.toLowerCase())) {
                 // Stylize the parent if we have Github contributors
                 // icons.This is because the link is on the icon,
                 // which means the color is entirely ignored.
@@ -81,7 +81,7 @@ const highlightGithubProfile = (usernames, color) => {
         if (elements.length === 1) {
             // On a Github profile, check the username(s).
             const element = elements[0];
-            if (usernames.has(element.innerText)) {
+            if (usernames.has(element.innerText.toLowerCase())) {
                 stylize(element, color);
             }
         }
@@ -101,7 +101,7 @@ const highlightGitlabProfile = (usernames, color) => {
             // On a Gitlab profile, check the username(s).
             const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
             let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
-            if (match !== null && usernames.has(match[1])) {
+            if (match !== null && usernames.has(match[1].toLowerCase())) {
                 stylize(element, color);
             }
         }

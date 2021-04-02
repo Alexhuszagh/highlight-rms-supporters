@@ -439,8 +439,8 @@
             .then(html => extractSignerList(html));
 
         // Create stylesheets from the signer lists.
-        let github = new Set(signers.github);
-        let gitlab = new Set(signers.gitlab);
+        let github = new Set(signers.github.map(x => x.toLowerCase()));
+        let gitlab = new Set(signers.gitlab.map(x => x.toLowerCase()));
 
         return {
             github,
@@ -522,7 +522,7 @@
                 let username = extractUsername(url);
 
                 // Check if the username exists in the set, and highlight it if it is.
-                if (usernames.has(username)) {
+                if (usernames.has(username.toLowerCase())) {
                     // Stylize the parent if we have Github contributors
                     // icons.This is because the link is on the icon,
                     // which means the color is entirely ignored.
@@ -549,7 +549,7 @@
             if (elements.length === 1) {
                 // On a Github profile, check the username(s).
                 const element = elements[0];
-                if (usernames.has(element.innerText)) {
+                if (usernames.has(element.innerText.toLowerCase())) {
                     stylize(element, color);
                 }
             }
@@ -569,7 +569,7 @@
                 // On a Gitlab profile, check the username(s).
                 const element = elements[0].getElementsByClassName('middle-dot-divider')[0];
                 let match = element.innerText.match(/^@([A-Za-z0-9-]*)\s*$/);
-                if (match !== null && usernames.has(match[1])) {
+                if (match !== null && usernames.has(match[1].toLowerCase())) {
                     stylize(element, color);
                 }
             }
