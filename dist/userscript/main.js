@@ -118,11 +118,6 @@
         backgroundColor: {
             'default': 'orange'
         },
-        timeout: {
-            min: 1,
-            max: 2000,
-            'default': 500
-        },
         url: {
             'default': 'https://rms-support-letter.github.io/'
         }
@@ -172,17 +167,6 @@
         }
 
         /**
-         * Get the timeout to wait before highlighting.
-         */
-        async function getTimeout() {
-            let value = await storage.get('timeout');
-            if (typeof value.timeout !== 'undefined') {
-                return value.timeout;
-            }
-            return settings.timeout['default'];
-        }
-
-        /**
          * Get the URL to fetch the signers from.
          */
         async function getUrl() {
@@ -229,7 +213,6 @@
         return {
             getBackgroundColor,
             getRefresh,
-            getTimeout,
             getUpdated,
             getUrl,
             getUsernames,
@@ -271,13 +254,6 @@
         });
     };
 
-    // Store the timeout delay from the GM_Config label.
-    const storeTimeout = async () => {
-        await storage.set({
-            'timeout': GM_API.config.get('timeoutLabel')
-        });
-    };
-
     // Store the RMS support letter URL from the GM_Config label.
     const storeUrl = async () => {
         await storage.set({
@@ -303,13 +279,6 @@
                 default: settings.refresh.values[settings.refresh['default']],
                 options: Object.keys(settings.refresh.labels)
             },
-            timeoutLabel: {
-                label: 'Display Delay',
-                type: 'int',
-                min: settings.timeout.min,
-                max: settings.timeout.max,
-                default: settings.timeout['default']
-            },
             urlLabel: {
                 label: 'RMS Support Letter URL',
                 type: 'text',
@@ -327,7 +296,6 @@
             save: async () => {
                 // Even if the int validator fails, other values are stored.
                 await storeRefresh();
-                await storeTimeout();
 
                 // Validate and optionally store URL.
                 if (url.validate(GM_API.config.get('urlLabel'))) {
@@ -690,7 +658,6 @@
      */
     var main = async store => {
         BACKGROUND_COLOR = await store.getBackgroundColor();
-        await store.getTimeout();
         URL$1 = await store.getUrl();
         await loadUsernames(store);
 

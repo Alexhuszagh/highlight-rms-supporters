@@ -44,17 +44,6 @@ export default storage => {
     }
 
     /**
-     * Get the timeout to wait before highlighting.
-     */
-    async function getTimeout() {
-        let value = await storage.get('timeout');
-        if (typeof value.timeout !== 'undefined') {
-            return value.timeout;
-        }
-        return settings.timeout['default'];
-    }
-
-    /**
      * Get the URL to fetch the signers from.
      */
     async function getUrl() {
@@ -101,7 +90,6 @@ export default storage => {
     return {
         getBackgroundColor,
         getRefresh,
-        getTimeout,
         getUpdated,
         getUrl,
         getUsernames,

@@ -12,8 +12,6 @@ var CURRENT_URL = document.location.href;
 var USERNAMES;
 // Background color loaded from the store.
 var BACKGROUND_COLOR;
-// Timeout before applying the styles.
-var TIMEOUT;
 // URL to fetch the signer list from.
 var URL;
 
@@ -74,7 +72,6 @@ window.onload = () => {
  */
 export default async store => {
     BACKGROUND_COLOR = await store.getBackgroundColor();
-    TIMEOUT = await store.getTimeout();
     URL = await store.getUrl();
     await loadUsernames(store);
 

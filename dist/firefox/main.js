@@ -345,7 +345,6 @@
      */
     var main = async store => {
         BACKGROUND_COLOR = await store.getBackgroundColor();
-        await store.getTimeout();
         URL$1 = await store.getUrl();
         await loadUsernames(store);
 
@@ -374,11 +373,6 @@
         },
         backgroundColor: {
             'default': 'orange'
-        },
-        timeout: {
-            min: 1,
-            max: 2000,
-            'default': 500
         },
         url: {
             'default': 'https://rms-support-letter.github.io/'
@@ -429,17 +423,6 @@
         }
 
         /**
-         * Get the timeout to wait before highlighting.
-         */
-        async function getTimeout() {
-            let value = await storage.get('timeout');
-            if (typeof value.timeout !== 'undefined') {
-                return value.timeout;
-            }
-            return settings.timeout['default'];
-        }
-
-        /**
          * Get the URL to fetch the signers from.
          */
         async function getUrl() {
@@ -486,7 +469,6 @@
         return {
             getBackgroundColor,
             getRefresh,
-            getTimeout,
             getUpdated,
             getUrl,
             getUsernames,

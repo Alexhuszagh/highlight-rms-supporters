@@ -21,11 +21,6 @@ export default {
     backgroundColor: {
         'default': 'orange'
     },
-    timeout: {
-        min: 1,
-        max: 2000,
-        'default': 500
-    },
     url: {
         'default': 'https://rms-support-letter.github.io/'
     }

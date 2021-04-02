@@ -19,13 +19,6 @@ const storeRefresh = async () => {
     });
 }
 
-// Store the timeout delay from the GM_Config label.
-const storeTimeout = async () => {
-    await storage.set({
-        'timeout': api.config.get('timeoutLabel')
-    });
-}
-
 // Store the RMS support letter URL from the GM_Config label.
 const storeUrl = async () => {
     await storage.set({
@@ -51,13 +44,6 @@ api.config.init({
             default: settings.refresh.values[settings.refresh['default']],
             options: Object.keys(settings.refresh.labels)
         },
-        timeoutLabel: {
-            label: 'Display Delay',
-            type: 'int',
-            min: settings.timeout.min,
-            max: settings.timeout.max,
-            default: settings.timeout['default']
-        },
         urlLabel: {
             label: 'RMS Support Letter URL',
             type: 'text',
@@ -75,7 +61,6 @@ api.config.init({
         save: async () => {
             // Even if the int validator fails, other values are stored.
             await storeRefresh();
-            await storeTimeout();
 
             // Validate and optionally store URL.
             if (url.validate(api.config.get('urlLabel'))) {
