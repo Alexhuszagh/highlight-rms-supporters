@@ -377,6 +377,8 @@
             'default': 'orange'
         },
         timeout: {
+            min: 1,
+            max: 2000,
             'default': 500
         },
         url: {

@@ -2,6 +2,10 @@
  * Simple CSS theme for options.
  */
 
+input {
+  border: 2px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #202023;
@@ -16,18 +20,33 @@
     color: #f9faf9;
   }
 
+  input {
+    margin-left: 2ch;
+    border: 2px;
+    outline: 0px;
+    background: #38383e;
+    color: #f9faf9;
+  }
+
   select option {
     background: #38383e;
     color: #f9faf9;
   }
 }
 
-html, body {
+@supports ( -moz-appearance:none ) {
+  html, body {
+    /* For styling, make the height 100%. For chrome, this messes the UI. */
     height: 100%;
+  }
 }
 
 label {
   vertical-align: middle;
   margin-top: 0.15em;
   margin-bottom: 0.15em;
+}
+
+input:invalid {
+  border: 2px solid crimson !important;
 }

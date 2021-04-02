@@ -54,8 +54,8 @@ api.config.init({
         timeoutLabel: {
             label: 'Display Delay',
             type: 'int',
-            min: 1,
-            max: 2000,
+            min: settings.timeout.min,
+            max: settings.timeout.max,
             default: settings.timeout['default']
         },
         urlLabel: {
@@ -63,7 +63,7 @@ api.config.init({
             type: 'text',
             default: settings.url['default'],
             // Unlikely to be longer than 100, in practice.
-            size: 100
+            size: 50
         },
         colorLabel: {
             label: 'Highlight Color',

@@ -11,13 +11,28 @@
     <form>
       <label for="refresh">Refresh Time:</label>
       <select name="refresh" id="refresh">
-        <option value="600000">10 minutes</option>
-        <option value="3600000">1 hour</option>
-        <option value="86400000">1 day</option>
-        <option value="9007199254740991">Never</option>
       </select>
       <br><br>
     </form>
+
+    <form>
+      <label for="timeout">Display Delay:</label>
+      <input type="text" name="timeout" id="timeout" size="10" />
+      <br><br>
+    </form>
+
+    <form>
+      <label for="url">RMS Support Letter URL:</label>
+      <input type="text" name="url" id="url" size="50" />
+      <br><br>
+    </form>
+
+    <form>
+      <label for="backgroundColor">Highlight Color:</label>
+      <input type="color" name="backgroundColor" id="backgroundColor" />
+      <br><br>
+    </form>
+
     <script src=browser-polyfill.js></script>
     <script src=options.js></script>
   </body>
