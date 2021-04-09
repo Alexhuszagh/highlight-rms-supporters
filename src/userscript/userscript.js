@@ -4,6 +4,8 @@
 // @version            0.1
 // @description        Highlights any users who signed RMS's support letter.
 // @author             Alex Huszagh
+// @license            MIT; https://opensource.org/licenses/MIT
+// @license            Apache-2.0; https://www.apache.org/licenses/LICENSE-2.0
 // @match              https://github.com/*
 // @match              https://*.github.io/*
 // @match              https://gitlab.com/*
